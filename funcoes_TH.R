@@ -53,14 +53,31 @@ teste.hip.t <- function(alfa, xbarra, mu0, dp, n,
 }
 
 ## teste t 2 amostras com sigma1 = sigma2
-teste.hip.t2 <- function(alfa, xbarra1, xbarra2, var1, var2, n1, n2){
+teste.hip.t2 <- function(alfa, xbarra1, xbarra2, var1, var2, n1, n2,
+                         alt = c("b", "e", "d")){
     gl <- n1 + n2 - 2
     s2c <- (((n1 - 1) * var1) + ((n2 - 1) * var2))/gl
-    vcrit <- qt(alfa, gl)
+    vcrit <- switch(alt,
+                    b = c(qt(alfa/2, gl),
+                        qt(alfa/2, gl, lower.tail = FALSE)),
+                    e = qt(alfa, gl),
+                    d = qt(alfa, gl, lower.tail = FALSE))
     estat <- (xbarra1 - xbarra2)/(sqrt(s2c/n1 + s2c/n2))
     saida <- list("valor critico" = vcrit,
                   "estatistica de teste" = estat,
-                  "decisao" = ifelse(abs(estat) > abs(vcrit),
+                  "decisao" = ifelse(abs(estat) > abs(vcrit[1]),
+                      "rejeita H0", "nao rejeita H0"))
+    return(saida)
+}
+
+## teste de hipotese para rho = 0
+teste.hip.rho <- function(alfa, r, n){
+    gl <- n - 2
+    vcrit <- c(qt(alfa/2, gl), qt(alfa/2, gl, lower.tail = FALSE))
+    estat <- r * sqrt(gl/(1 - r^2))
+    saida <- list("valor critico" = vcrit,
+                  "estatistica de teste" = estat,
+                  "decisao" = ifelse(abs(estat) > abs(vcrit[1]),
                       "rejeita H0", "nao rejeita H0"))
     return(saida)
 }
